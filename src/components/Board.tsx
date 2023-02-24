@@ -2,32 +2,50 @@ import { Component } from "react";
 
 let newDeck = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1";
 
-export default class Board extends Component {
+
+interface BoardState {
+  isLoading: boolean;
+  currentPlayer: string;
+  deckId: string | null;
+  deck: any;
+  playerHand: any[];
+  computerHand: any[];
+}
+
+
+async function fetchDeckId() {
+  const response = await fetch(`${newDeck}`);
+  const deck = await response.json();
+  return deck.deck_id;
+}
+
+export default class Board extends Component<{}, BoardState> {
   constructor(props: any) {
     super(props)
     this.state = {
+      isLoading: false,
       currentPlayer: "playerHand",
       deckId: null,
       deck: {},
       playerHand: [],
       computerHand: []
     }
+
+
+
   }
 
-  async fetchDeck() {
-    const response = await fetch(`${newDeck}`);
-    const deck = await response.json();
-    const { deck_id, remaining, success } = deck;
+  async handlefetchDeckId() {
+    this.setState({ isLoading: true })
+    const deckId = await fetchDeckId();
     console.log("fetching")
-
     this.setState({
-      deckId: deck_id,
+      deckId,
+      isLoading: false
+    })
 
-    });
 
-    return deck;
   }
-
   shuffleDeck() {
 
   }
@@ -37,18 +55,25 @@ export default class Board extends Component {
 
   }
 
-  async drawCard(deckId: string, currentPlayer: string) {
+  async drawCard(deckId: string, count: number) {
     let { playerHand }: any = this.state;
-    const response = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
+    const response = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${count}`);
     const data = await response.json();
-    
-    this.setState({
-      [currentPlayer]: [data.cards[0].code]
-    })
-    return data.cards.code;
+    const cards = data.cards
+    return data.cards;
+
   }
 
-  getPlayerDeck() {
+  async dealCards() {
+    const { playerHand, computerHand, deckId } = this.state;
+    const playerDraw = await this.drawCard(deckId, 6);
+    const computerDraw = await this.drawCard(deckId, 6);
+    this.setState({
+      playerHand: playerDraw,
+      computerHand: computerDraw
+
+    });
+
 
   }
 
@@ -57,23 +82,59 @@ export default class Board extends Component {
   }
 
   async componentDidMount() {
-    let { deckId }: any = this.state;
+    const { deckId } = this.state;
     if (!deckId) {
-      await this.fetchDeck();
+      await this.handlefetchDeckId();
     }
-    console.log("mounted")
+    await this.dealCards();
+
+    console.log(this.state.deckId, "finished fetching")
+    console.log("mounting")
   }
 
 
   render() {
+    let { deckId, currentPlayer, isLoading, playerHand, computerHand}: any = this.state;
     console.log(this.state)
-    let { deckId, currentPlayer}: any = this.state;
 
+    if (isLoading) {
+      return (
+        <div>Loading...</div>
+      )
+    }
+    if (!playerHand) {
+      return;
+    }
+    const computerCards = computerHand.map((card: any) => {
+      return (<img src={card.image} alt={card.code}></img>)
+    })
 
+    const playerCards = playerHand.map((card: any) => {
+      return (<img src={card.image} alt={card.code}></img>)
+    })
     return (
       <>
         <h1>Crazy Eights</h1>
-        <button onClick={async () => { await this.drawCard(deckId, currentPlayer) }}>Draw Card</button>
+        <div>{playerHand.length == 0 ? (
+          <div>Hand is empty</div>
+        ) : (
+            <>
+              <div>
+                <h2>Opponents hand</h2>
+                <div>{ computerCards }</div>
+              </div>
+              <div>
+                <h2>Your hand</h2>
+            <div>{playerCards}</div>
+              </div>
+            
+          </>
+
+
+        )}</div>
+
+        <button onClick={() => { this.drawCard(deckId, 1) }}>Draw Card</button>
+        <h2>Deck ID: {this.state.deckId}</h2>
 
       </>
     )
