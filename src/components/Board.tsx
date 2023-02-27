@@ -1,4 +1,5 @@
 import { Component } from "react";
+import { fetchDeckId } from "../utils/utils.js"
 
 let newDeck = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1";
 
@@ -6,18 +7,14 @@ let newDeck = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1";
 interface BoardState {
   isLoading: boolean;
   currentPlayer: string;
-  deckId: string | null;
+  deckId: string;
+  currentSuit: string;
   deck: any;
   playerHand: any[];
   computerHand: any[];
 }
 
 
-async function fetchDeckId() {
-  const response = await fetch(`${newDeck}`);
-  const deck = await response.json();
-  return deck.deck_id;
-}
 
 export default class Board extends Component<{}, BoardState> {
   constructor(props: any) {
@@ -25,7 +22,8 @@ export default class Board extends Component<{}, BoardState> {
     this.state = {
       isLoading: false,
       currentPlayer: "playerHand",
-      deckId: null,
+      deckId: "",
+      currentSuit: "",
       deck: {},
       playerHand: [],
       computerHand: []
@@ -86,7 +84,6 @@ export default class Board extends Component<{}, BoardState> {
     if (!deckId) {
       await this.handlefetchDeckId();
     }
-    await this.dealCards();
 
     console.log(this.state.deckId, "finished fetching")
     console.log("mounting")
@@ -106,11 +103,11 @@ export default class Board extends Component<{}, BoardState> {
       return;
     }
     const computerCards = computerHand.map((card: any) => {
-      return (<img src={card.image} alt={card.code}></img>)
+      return (<img key={card.code} src={card.image} alt={card.code}></img>)
     })
 
     const playerCards = playerHand.map((card: any) => {
-      return (<img src={card.image} alt={card.code}></img>)
+      return (<img key={card.code} src={card.image} alt={card.code}></img>)
     })
     return (
       <>
@@ -132,7 +129,7 @@ export default class Board extends Component<{}, BoardState> {
 
 
         )}</div>
-
+        <button onClick={this.dealCards.bind(this)}>Deal</button>
         <button onClick={() => { this.drawCard(deckId, 1) }}>Draw Card</button>
         <h2>Deck ID: {this.state.deckId}</h2>
 
