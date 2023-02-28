@@ -57,18 +57,48 @@ export default class Board extends Component<{}, BoardState> {
 
   }
 
+
+  playCard(card: any) {
+    const oldHand = this.state.playerHand;
+
+    if (this.isCardPlayable(card)) {
+      fetch(`/api/add/${this.state.deckId}/${card.code}`)
+      console.log("added card to discard pile")
+      console.log(card)
+
+      const newHand = oldHand.filter((cards) => {
+        return cards.code != card.code
+      })
+
+      this.setState({
+        topCard: card,
+        playerHand: newHand
+      })
+      console.log(this.state.playerHand)
+      return;
+    }
+    console.log("card is not playable")
+    return;
+  }
+
   isCardPlayable(card: any) {
-    const { suit, value } = this.state.topCard
-    const cardValues = ["2", "3", "4", "5", "6", "7", "9", "J", "Q", "K", "0"]
+    const currentSuit = this.state.topCard.suit;
+    const currentValue = this.state.topCard.value;
+    console.log(this.state.topCard)
+    const cardValues = ["2", "3", "4", "5", "6", "7", "9", "JACK", "QUEEN", "KING", "ACE"]
+
+    if (this.state.topCard.value === "8" && card.suit != currentSuit)
+      return false;
 
     if (card.value === "8") {
-      //TODO: add crazy eight functionality
+      // this.changeSuit();
       return true;
     }
-    if (cardValues.indexOf(card.value) >= cardValues.indexOf(value)) {
+    if (card.suit === currentSuit) {
       return true;
     }
-    if (card.suit === suit) {
+
+    if (cardValues.indexOf(card.value) >= cardValues.indexOf(currentValue)) {
       return true;
     }
 
@@ -130,11 +160,11 @@ export default class Board extends Component<{}, BoardState> {
       return;
     }
     const computerCards = computerHand.map((card: any) => {
-      return (<img key={card.code} src={card.image} alt={card.code}></img>)
+      return (<img key={card.code} src={card.image} alt={card.code} ></img>)
     })
 
     const playerCards = playerHand.map((card: any) => {
-      return (<img key={card.code} src={card.image} alt={card.code}></img>)
+      return (<img key={card.code} src={card.image} alt={card.code} onClick={() => this.playCard(card)}></img>)
     })
 
     
