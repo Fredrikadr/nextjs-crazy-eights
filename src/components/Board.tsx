@@ -7,8 +7,8 @@ interface BoardState {
   deckId: string;
   currentSuit: string;
   topCard: TopCard,
-  playerHand: any[];
-  computerHand: any[];
+  playerOneHand: any[];
+  playerTwoHand: any[];
 }
 
 interface TopCard {
@@ -25,7 +25,7 @@ export default class Board extends Component<{}, BoardState> {
     super(props)
     this.state = {
       isLoading: false,
-      currentPlayer: "playerHand",
+      currentPlayer: "playerOne",
       deckId: "",
       currentSuit: "",
       topCard: {
@@ -34,8 +34,8 @@ export default class Board extends Component<{}, BoardState> {
         suit: "",
         code: "",
       },
-      playerHand: [],
-      computerHand: []
+      playerOneHand: [],
+      playerTwoHand: []
     }
 
 
@@ -57,9 +57,26 @@ export default class Board extends Component<{}, BoardState> {
 
   }
 
+  shuffleDiscardPile() {
+
+  }
+
+
+
+  switchTurn() {
+    const { currentPlayer } = this.state;
+    const nextPlayer = currentPlayer === "playerOne" ? "playerTwo" : "playerOne";
+    this.setState({
+      currentPlayer: nextPlayer
+    })
+
+  }
+
 
   playCard(card: any) {
-    const oldHand = this.state.playerHand;
+    const { currentPlayer } = this.state;
+    const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand" 
+    const oldHand = this.state[playerHand];
 
     if (this.isCardPlayable(card)) {
       fetch(`/api/add/${this.state.deckId}/${card.code}`)
@@ -67,19 +84,20 @@ export default class Board extends Component<{}, BoardState> {
       console.log(card)
 
       const newHand = oldHand.filter((cards) => {
-        return cards.code != card.code
+        return cards.code != card.code;
       })
 
       this.setState({
         topCard: card,
-        playerHand: newHand
-      })
-      console.log(this.state.playerHand)
+        [playerHand]: newHand
+      } as Pick<BoardState, keyof BoardState>);
+      console.log(this.state.playerOneHand)
       return;
     }
     console.log("card is not playable")
     return;
   }
+
 
   isCardPlayable(card: any) {
     const currentSuit = this.state.topCard.suit;
@@ -106,8 +124,11 @@ export default class Board extends Component<{}, BoardState> {
   }
 
   async drawCard(count: number) {
+
+    //TODO: show number of remaining cards
+
     let { deckId }: any = this.state;
-    const response = await fetch(`/api/draw/${deckId}/${count}`); 
+    const response = await fetch(`/api/draw/${deckId}/${count}`);
     const data = await response.json();
     const cards = data.cards
     return cards
@@ -115,12 +136,12 @@ export default class Board extends Component<{}, BoardState> {
   }
 
   async dealCards() {
-    const { playerHand, computerHand, deckId } = this.state;
+    const { playerOneHand, playerTwoHand, deckId } = this.state;
     const playerDraw = await this.drawCard(6);
     const computerDraw = await this.drawCard(6);
     this.setState({
-      playerHand: playerDraw,
-      computerHand: computerDraw
+      playerOneHand: playerDraw,
+      playerTwoHand: computerDraw
     });
     this.initialDraw();
   }
@@ -148,7 +169,7 @@ export default class Board extends Component<{}, BoardState> {
 
 
   render() {
-    let { deckId, currentPlayer, isLoading, playerHand, computerHand, topCard}: any = this.state;
+    let { deckId, currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard }: any = this.state;
     console.log(this.state)
 
     if (isLoading) {
@@ -156,36 +177,42 @@ export default class Board extends Component<{}, BoardState> {
         <div>Loading...</div>
       )
     }
-    if (!playerHand) {
+    if (!playerOneHand) {
       return;
     }
-    const computerCards = computerHand.map((card: any) => {
-      return (<img key={card.code} src={card.image} alt={card.code} ></img>)
+    const computerCards = playerTwoHand
+      .map((card: any) => {
+        return (
+          <img key={card.code} src={card.image} alt={card.code} ></img>)
     })
 
-    const playerCards = playerHand.map((card: any) => {
-      return (<img key={card.code} src={card.image} alt={card.code} onClick={() => this.playCard(card)}></img>)
-    })
+    const playerCards = playerOneHand
+      .map((card: any) => {
+        return (
+          <img key={card.code} src={card.image} alt={card.code}
+            onClick={() => this.playCard(card)}></img>)
+      })
 
-    
+
     return (
       <>
         <h1>Crazy Eights</h1>
-        <div>{playerHand.length == 0 ? (
+        <div>{playerOneHand
+          .length == 0 ? (
           <div>Hand is empty</div>
         ) : (
-            <>
-              <div>
-                <h2>Opponents hand</h2>
-                <div>{ computerCards }</div>
-              </div>
-              <h2>Top Card</h2>
-              <div><img alt={topCard.code} src={topCard.image} ></img></div>
-              <div>
-                <h2>Your hand</h2>
-            <div>{playerCards}</div>
-              </div>
-            
+          <>
+            <div>
+              <h2>Opponents hand</h2>
+              <div>{computerCards}</div>
+            </div>
+            <h2>Top Card</h2>
+            <div><img alt={topCard.code} src={topCard.image} ></img></div>
+            <div>
+              <h2>Your hand</h2>
+              <div>{playerCards}</div>
+            </div>
+
           </>
 
 
