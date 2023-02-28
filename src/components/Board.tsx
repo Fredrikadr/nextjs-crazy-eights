@@ -6,9 +6,16 @@ interface BoardState {
   currentPlayer: string;
   deckId: string;
   currentSuit: string;
-  discard: any[];
+  topCard: TopCard,
   playerHand: any[];
   computerHand: any[];
+}
+
+interface TopCard {
+  image: string
+  value: string,
+  suit: string,
+  code: string,
 }
 
 
@@ -21,7 +28,12 @@ export default class Board extends Component<{}, BoardState> {
       currentPlayer: "playerHand",
       deckId: "",
       currentSuit: "",
-      discard: [],
+      topCard: {
+        image: "",
+        value: "",
+        suit: "",
+        code: "",
+      },
       playerHand: [],
       computerHand: []
     }
@@ -45,9 +57,22 @@ export default class Board extends Component<{}, BoardState> {
 
   }
 
+  isCardPlayable(card: any) {
+    const { suit, value } = this.state.topCard
+    const cardValues = ["2", "3", "4", "5", "6", "7", "9", "J", "Q", "K", "0"]
 
-  addToPile() {
+    if (card.value === "8") {
+      //TODO: add crazy eight functionality
+      return true;
+    }
+    if (cardValues.indexOf(card.value) >= cardValues.indexOf(value)) {
+      return true;
+    }
+    if (card.suit === suit) {
+      return true;
+    }
 
+    return false;
   }
 
   async drawCard(count: number) {
@@ -66,18 +91,20 @@ export default class Board extends Component<{}, BoardState> {
     this.setState({
       playerHand: playerDraw,
       computerHand: computerDraw
-
     });
+    this.initialDraw();
   }
 
   async initialDraw() {
     const card = await this.drawCard(1)
+    const newTopCard = card[0]
+    this.setState({
+      topCard: newTopCard
+    })
     return card
   }
 
-  getComputerDeck() {
 
-  }
 
   async componentDidMount() {
     const { deckId } = this.state;
@@ -91,7 +118,7 @@ export default class Board extends Component<{}, BoardState> {
 
 
   render() {
-    let { deckId, currentPlayer, isLoading, playerHand, computerHand}: any = this.state;
+    let { deckId, currentPlayer, isLoading, playerHand, computerHand, topCard}: any = this.state;
     console.log(this.state)
 
     if (isLoading) {
@@ -109,6 +136,8 @@ export default class Board extends Component<{}, BoardState> {
     const playerCards = playerHand.map((card: any) => {
       return (<img key={card.code} src={card.image} alt={card.code}></img>)
     })
+
+    
     return (
       <>
         <h1>Crazy Eights</h1>
@@ -120,6 +149,8 @@ export default class Board extends Component<{}, BoardState> {
                 <h2>Opponents hand</h2>
                 <div>{ computerCards }</div>
               </div>
+              <h2>Top Card</h2>
+              <div><img alt={topCard.code} src={topCard.image} ></img></div>
               <div>
                 <h2>Your hand</h2>
             <div>{playerCards}</div>
