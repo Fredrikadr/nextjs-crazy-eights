@@ -1,15 +1,12 @@
 import { Component } from "react";
 import { fetchDeckId } from "../utils/utils.js"
 
-let newDeck = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1";
-
-
 interface BoardState {
   isLoading: boolean;
   currentPlayer: string;
   deckId: string;
   currentSuit: string;
-  deck: any;
+  discard: any[];
   playerHand: any[];
   computerHand: any[];
 }
@@ -24,7 +21,7 @@ export default class Board extends Component<{}, BoardState> {
       currentPlayer: "playerHand",
       deckId: "",
       currentSuit: "",
-      deck: {},
+      discard: [],
       playerHand: [],
       computerHand: []
     }
@@ -53,26 +50,29 @@ export default class Board extends Component<{}, BoardState> {
 
   }
 
-  async drawCard(deckId: string, count: number) {
-    let { playerHand }: any = this.state;
-    const response = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${count}`);
+  async drawCard(count: number) {
+    let { deckId }: any = this.state;
+    const response = await fetch(`/api/draw/${deckId}/${count}`); 
     const data = await response.json();
     const cards = data.cards
-    return data.cards;
+    return cards
 
   }
 
   async dealCards() {
     const { playerHand, computerHand, deckId } = this.state;
-    const playerDraw = await this.drawCard(deckId, 6);
-    const computerDraw = await this.drawCard(deckId, 6);
+    const playerDraw = await this.drawCard(6);
+    const computerDraw = await this.drawCard(6);
     this.setState({
       playerHand: playerDraw,
       computerHand: computerDraw
 
     });
+  }
 
-
+  async initialDraw() {
+    const card = await this.drawCard(1)
+    return card
   }
 
   getComputerDeck() {
@@ -130,7 +130,7 @@ export default class Board extends Component<{}, BoardState> {
 
         )}</div>
         <button onClick={this.dealCards.bind(this)}>Deal</button>
-        <button onClick={() => { this.drawCard(deckId, 1) }}>Draw Card</button>
+        <button onClick={() => { this.drawCard(1) }}>Draw Card</button>
         <h2>Deck ID: {this.state.deckId}</h2>
 
       </>
