@@ -63,9 +63,9 @@ export default class Board extends Component<{}, BoardState> {
 
   computerTurn() {
     //check if any cards on hand is playable
-      //else check if any eights on hand -> change suit based on current hand
-      //else draw card
-      //repeat
+    //else check if any eights on hand -> change suit based on current hand
+    //else draw card
+    //repeat
   }
 
   switchTurn() {
@@ -77,10 +77,14 @@ export default class Board extends Component<{}, BoardState> {
 
   }
 
+  changeSuit() {
+
+  }
+
 
   playCard(card: any) {
     const { currentPlayer } = this.state;
-    const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand" 
+    const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand"
     const oldHand = this.state[playerHand];
 
     if (this.isCardPlayable(card)) {
@@ -104,6 +108,15 @@ export default class Board extends Component<{}, BoardState> {
   }
 
 
+  checkHandforPlayable() {
+    //Checks if there are playable cards in current players hand
+    const { currentPlayer} = this.state;
+    const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand"
+    const oldHand = this.state[playerHand];
+    
+    return (oldHand.filter(card => this.isCardPlayable(card)).length === 0 ? false : true) 
+  }
+
   isCardPlayable(card: any) {
     const currentSuit = this.state.topCard.suit;
     const currentValue = this.state.topCard.value;
@@ -121,11 +134,34 @@ export default class Board extends Component<{}, BoardState> {
       return true;
     }
 
-    if (cardValues.indexOf(card.value) >= cardValues.indexOf(currentValue)) {
+    if (cardValues.indexOf(card.value) === cardValues.indexOf(currentValue)) {
       return true;
     }
 
     return false;
+  }
+
+
+  async handleDraw() {
+    const { currentPlayer, playerOneHand, playerTwoHand } = this.state;
+    const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand"
+    const oldHand = this.state[playerHand];
+
+    if (!this.checkHandforPlayable()) {
+      console.log("no playable cards. drawing 1")
+      let newCard = await this.drawCard(1);
+      let newHand = oldHand.concat(newCard);
+
+      this.setState({
+        [playerHand]: newHand
+      } as unknown as Pick<BoardState, keyof BoardState>);
+   
+
+      //set state to new hand
+
+    } else {
+      console.log("you have playable cards. no cards drawn")
+    }
   }
 
   async drawCard(count: number) {
@@ -190,11 +226,11 @@ export default class Board extends Component<{}, BoardState> {
             key={card.code}
             src={card.image}
             alt={card.code}
-          
+
             onClick={() => currentPlayer === "playerTwo" ? this.playCard(card) : null}
           />
         );
-    })
+      })
 
     const playerOneCards = playerOneHand
       .map((card: any) => {
@@ -212,13 +248,14 @@ export default class Board extends Component<{}, BoardState> {
     return (
       <>
         <h1>Crazy Eights</h1>
+        <h2>Current player: {currentPlayer === "playerOne" ? "Player one" : "Player two"}</h2>
         <div>{playerOneHand.length == 0 ? (
           <div>Hand is empty</div>
         ) : (
           <>
             <div>
               <h2>Opponents hand</h2>
-                <div>{playerTwoCards}</div>
+              <div>{playerTwoCards}</div>
             </div>
             <h2>Top Card</h2>
             <div><img alt={topCard.code} src={topCard.image} ></img></div>
@@ -233,7 +270,7 @@ export default class Board extends Component<{}, BoardState> {
         )}</div>
         <button onClick={this.dealCards.bind(this)}>Deal</button>
         {this.state.currentPlayer === "playerOne" &&
-          <button onClick={() => { this.drawCard(1) }}>Draw Card</button>}
+          <button onClick={() => { this.handleDraw() }}>Draw Card</button>}
         <h2>Deck ID: {this.state.deckId}</h2>
 
       </>
