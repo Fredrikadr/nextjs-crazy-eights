@@ -61,7 +61,12 @@ export default class Board extends Component<{}, BoardState> {
 
   }
 
-
+  computerTurn() {
+    //check if any cards on hand is playable
+      //else check if any eights on hand -> change suit based on current hand
+      //else draw card
+      //repeat
+  }
 
   switchTurn() {
     const { currentPlayer } = this.state;
@@ -91,7 +96,7 @@ export default class Board extends Component<{}, BoardState> {
         topCard: card,
         [playerHand]: newHand
       } as Pick<BoardState, keyof BoardState>);
-      console.log(this.state.playerOneHand)
+      this.switchTurn();
       return;
     }
     console.log("card is not playable")
@@ -169,7 +174,8 @@ export default class Board extends Component<{}, BoardState> {
 
 
   render() {
-    let { deckId, currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard }: any = this.state;
+
+    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard }: any = this.state;
     console.log(this.state)
 
     if (isLoading) {
@@ -177,40 +183,48 @@ export default class Board extends Component<{}, BoardState> {
         <div>Loading...</div>
       )
     }
-    if (!playerOneHand) {
-      return;
-    }
-    const computerCards = playerTwoHand
+    const playerTwoCards = playerTwoHand
       .map((card: any) => {
         return (
-          <img key={card.code} src={card.image} alt={card.code} ></img>)
+          <img
+            key={card.code}
+            src={card.image}
+            alt={card.code}
+          
+            onClick={() => currentPlayer === "playerTwo" ? this.playCard(card) : null}
+          />
+        );
     })
 
-    const playerCards = playerOneHand
+    const playerOneCards = playerOneHand
       .map((card: any) => {
         return (
-          <img key={card.code} src={card.image} alt={card.code}
-            onClick={() => this.playCard(card)}></img>)
+          <img
+            key={card.code}
+            src={card.image}
+            alt={card.code}
+            onClick={() => currentPlayer === "playerOne" ? this.playCard(card) : null}
+          />
+        );
       })
 
 
     return (
       <>
         <h1>Crazy Eights</h1>
-        <div>{playerOneHand
-          .length == 0 ? (
+        <div>{playerOneHand.length == 0 ? (
           <div>Hand is empty</div>
         ) : (
           <>
             <div>
               <h2>Opponents hand</h2>
-              <div>{computerCards}</div>
+                <div>{playerTwoCards}</div>
             </div>
             <h2>Top Card</h2>
             <div><img alt={topCard.code} src={topCard.image} ></img></div>
             <div>
               <h2>Your hand</h2>
-              <div>{playerCards}</div>
+              <div>{playerOneCards}</div>
             </div>
 
           </>
@@ -218,7 +232,8 @@ export default class Board extends Component<{}, BoardState> {
 
         )}</div>
         <button onClick={this.dealCards.bind(this)}>Deal</button>
-        <button onClick={() => { this.drawCard(1) }}>Draw Card</button>
+        {this.state.currentPlayer === "playerOne" &&
+          <button onClick={() => { this.drawCard(1) }}>Draw Card</button>}
         <h2>Deck ID: {this.state.deckId}</h2>
 
       </>
