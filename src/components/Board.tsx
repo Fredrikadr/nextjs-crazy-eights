@@ -3,6 +3,7 @@ import { fetchDeckId } from "../utils/utils.js"
 
 interface BoardState {
   isLoading: boolean;
+  changingSuit: boolean
   currentPlayer: string;
   deckId: string;
   currentSuit: string;
@@ -25,6 +26,7 @@ export default class Board extends Component<{}, BoardState> {
     super(props)
     this.state = {
       isLoading: false,
+      changingSuit: false,
       currentPlayer: "playerOne",
       deckId: "",
       currentSuit: "",
@@ -77,7 +79,12 @@ export default class Board extends Component<{}, BoardState> {
 
   }
 
-  changeSuit() {
+  changeSuit(suit: string) {
+    this.setState({
+      currentSuit: suit,
+      changingSuit: false
+    });
+    this.switchTurn();
 
   }
 
@@ -100,7 +107,19 @@ export default class Board extends Component<{}, BoardState> {
         topCard: card,
         [playerHand]: newHand
       } as Pick<BoardState, keyof BoardState>);
-      this.switchTurn();
+
+      if (card.value != "8") {
+        this.setState({
+          currentSuit: card.suit
+        });
+        this.switchTurn();
+      } else {
+        this.setState({
+          changingSuit: true
+        })
+      }
+      
+  
       return;
     }
     console.log("card is not playable")
@@ -110,17 +129,18 @@ export default class Board extends Component<{}, BoardState> {
 
   checkHandforPlayable() {
     //Checks if there are playable cards in current players hand
-    const { currentPlayer} = this.state;
+    const { currentPlayer } = this.state;
     const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand"
     const oldHand = this.state[playerHand];
-    
-    return (oldHand.filter(card => this.isCardPlayable(card)).length === 0 ? false : true) 
+    const playableCards = oldHand.filter(card => this.isCardPlayable(card))
+    console.log(playableCards)
+    return (playableCards)
   }
 
   isCardPlayable(card: any) {
-    const currentSuit = this.state.topCard.suit;
+    const currentSuit = this.state.currentSuit;
     const currentValue = this.state.topCard.value;
-    console.log(this.state.topCard)
+    console.log(this.state.topCard, currentSuit)
     const cardValues = ["2", "3", "4", "5", "6", "7", "9", "JACK", "QUEEN", "KING", "ACE"]
 
     if (this.state.topCard.value === "8" && card.suit != currentSuit)
@@ -147,7 +167,7 @@ export default class Board extends Component<{}, BoardState> {
     const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand"
     const oldHand = this.state[playerHand];
 
-    if (!this.checkHandforPlayable()) {
+    if (this.checkHandforPlayable().length === 0) {
       console.log("no playable cards. drawing 1")
       let newCard = await this.drawCard(1);
       let newHand = oldHand.concat(newCard);
@@ -155,7 +175,7 @@ export default class Board extends Component<{}, BoardState> {
       this.setState({
         [playerHand]: newHand
       } as unknown as Pick<BoardState, keyof BoardState>);
-   
+
 
       //set state to new hand
 
@@ -191,7 +211,8 @@ export default class Board extends Component<{}, BoardState> {
     const card = await this.drawCard(1)
     const newTopCard = card[0]
     this.setState({
-      topCard: newTopCard
+      topCard: newTopCard,
+      currentSuit: card[0].suit
     })
     return card
   }
@@ -211,8 +232,9 @@ export default class Board extends Component<{}, BoardState> {
 
   render() {
 
-    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard }: any = this.state;
+    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard, changingSuit }: any = this.state;
     console.log(this.state)
+    console.log(this.state.currentSuit)
 
     if (isLoading) {
       return (
@@ -223,6 +245,7 @@ export default class Board extends Component<{}, BoardState> {
       .map((card: any) => {
         return (
           <img
+            className="card"
             key={card.code}
             src={card.image}
             alt={card.code}
@@ -236,6 +259,7 @@ export default class Board extends Component<{}, BoardState> {
       .map((card: any) => {
         return (
           <img
+            className="card"
             key={card.code}
             src={card.image}
             alt={card.code}
@@ -250,7 +274,7 @@ export default class Board extends Component<{}, BoardState> {
         <h1>Crazy Eights</h1>
         <h2>Current player: {currentPlayer === "playerOne" ? "Player one" : "Player two"}</h2>
         <div>{playerOneHand.length == 0 ? (
-          <div>Hand is empty</div>
+          <div>Press start</div>
         ) : (
           <>
             <div>
@@ -268,10 +292,17 @@ export default class Board extends Component<{}, BoardState> {
 
 
         )}</div>
-        <button onClick={this.dealCards.bind(this)}>Deal</button>
-        {this.state.currentPlayer === "playerOne" &&
-          <button onClick={() => { this.handleDraw() }}>Draw Card</button>}
+        
+        <button onClick={this.dealCards.bind(this)}>Start</button>
+        <button onClick={() => !changingSuit ? this.handleDraw() : null}>Draw Card</button>
         <h2>Deck ID: {this.state.deckId}</h2>
+        {changingSuit &&
+        <div className="suitChanger">
+          <button onClick={() => this.changeSuit("SPADES")}>Spades</button>
+          <button onClick={() => this.changeSuit("HEARTS")}>Hearts</button>
+          <button onClick={() => this.changeSuit("DIAMONDS")}>Diamonds</button>
+          <button onClick={() => this.changeSuit("CLUBS")}>Clubs</button>
+          </div>}
 
       </>
     )
