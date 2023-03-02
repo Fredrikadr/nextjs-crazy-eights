@@ -1,5 +1,7 @@
 import { Component } from "react";
 import { fetchDeckId } from "../utils/utils.js"
+import { CSSTransition } from "react-transition-group";
+
 
 interface BoardState {
   isLoading: boolean;
@@ -43,22 +45,26 @@ export default class Board extends Component<{}, BoardState> {
 
 
   }
-
   async handlefetchDeckId() {
-    this.setState({ isLoading: true })
+    console.log("calling fetch deck id!!!!!!!!!!!!!!!!!!")
+    const { deckId } = this.state;
+
+    if (deckId) {
+      return deckId;
+    }
 
     try {
+      this.setState({ isLoading: true });
       const deckId = await fetchDeckId();
-      console.log("fetching")
+      console.log("fetching");
       this.setState({
         deckId,
         isLoading: false
-      })
+      });
+      return deckId;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
-
   }
 
 
@@ -130,8 +136,6 @@ export default class Board extends Component<{}, BoardState> {
           changingSuit: true
         })
       }
-
-
       return;
     }
     console.log("card is not playable")
@@ -214,6 +218,9 @@ export default class Board extends Component<{}, BoardState> {
 
   async dealCards() {
     const { playerOneHand, playerTwoHand, deckId } = this.state;
+    if (!deckId) {
+      return;
+    }
     const playerDraw = await this.drawCard(6);
     const computerDraw = await this.drawCard(6);
     this.setState({
@@ -244,6 +251,9 @@ export default class Board extends Component<{}, BoardState> {
       await this.handlefetchDeckId();
     }
 
+    await this.dealCards();
+
+
     console.log(this.state.deckId, "finished fetching")
     console.log("mounting")
   }
@@ -260,17 +270,19 @@ export default class Board extends Component<{}, BoardState> {
         <div>Loading...</div>
       )
     }
-    const playerTwoCards = playerTwoHand
-      .map((card: any) => {
-        return (
-          <img
-            className="card"
-            key={card.code}
-            src={card.image}
-            alt={card.code}
 
-            onClick={() => currentPlayer === "playerTwo" ? this.playCard(card) : null}
-          />
+
+    const playerTwoCards = playerTwoHand
+      .map((card: any, i: number) => {
+        return (
+            <img
+              className="card"
+              key={card.code}
+              src={card.image}
+              alt={card.code}
+
+              onClick={() => currentPlayer === "playerTwo" && !changingSuit ? this.playCard(card) : null}
+            />
         );
       })
 
@@ -282,7 +294,7 @@ export default class Board extends Component<{}, BoardState> {
             key={card.code}
             src={card.image}
             alt={card.code}
-            onClick={() => currentPlayer === "playerOne" ? this.playCard(card) : null}
+            onClick={() => currentPlayer === "playerOne" && !changingSuit ? this.playCard(card) : null}
           />
         );
       })
@@ -292,9 +304,7 @@ export default class Board extends Component<{}, BoardState> {
       <>
         <h1>Crazy Eights</h1>
         <h2>Current player: {currentPlayer === "playerOne" ? "Player one" : "Player two"}</h2>
-        <div>{playerOneHand.length == 0 ? (
-          <div>Press start</div>
-        ) : (
+        <div>
           <>
             <div>
               <h2>Opponents hand</h2>
@@ -309,10 +319,8 @@ export default class Board extends Component<{}, BoardState> {
 
           </>
 
+        </div>
 
-        )}</div>
-
-        <button onClick={this.dealCards.bind(this)}>Start</button>
         <button onClick={() => !changingSuit ? this.handleDraw() : null}>Draw Card</button>
         <h2>Deck ID: {this.state.deckId}</h2>
         {changingSuit &&
