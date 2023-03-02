@@ -217,10 +217,6 @@ export default class Board extends Component<{}, BoardState> {
   }
 
   async dealCards() {
-    const { playerOneHand, playerTwoHand, deckId } = this.state;
-    if (!deckId) {
-      return;
-    }
     const playerDraw = await this.drawCard(6);
     const computerDraw = await this.drawCard(6);
     this.setState({
