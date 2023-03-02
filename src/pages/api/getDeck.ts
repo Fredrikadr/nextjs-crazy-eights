@@ -10,7 +10,7 @@ export default async function getDeck(
   res: NextApiResponse<Data>
 ) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/new/shuffle/?deck_count=1`);
+    const response = await fetch(`https://www.deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`);
     const deck = await response.json();
     res.status(200).json(deck);
   } catch (error: any) {
