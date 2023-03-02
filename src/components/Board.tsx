@@ -147,7 +147,6 @@ export default class Board extends Component<{}, BoardState> {
       return false;
 
     if (card.value === "8") {
-      // this.changeSuit();
       return true;
     }
     if (card.suit === currentSuit) {
@@ -175,9 +174,6 @@ export default class Board extends Component<{}, BoardState> {
       this.setState({
         [playerHand]: newHand
       } as unknown as Pick<BoardState, keyof BoardState>);
-
-
-      //set state to new hand
 
     } else {
       console.log("you have playable cards. no cards drawn")
@@ -279,13 +275,13 @@ export default class Board extends Component<{}, BoardState> {
           <>
             <div>
               <h2>Opponents hand</h2>
-              <div>{playerTwoCards}</div>
+                <div className="handContainer">{playerTwoCards}</div>
             </div>
             <h2>Top Card</h2>
             <div><img alt={topCard.code} src={topCard.image} ></img></div>
-            <div>
+              <div>
               <h2>Your hand</h2>
-              <div>{playerOneCards}</div>
+                <div className="handContainer">{playerOneCards}</div>
             </div>
 
           </>

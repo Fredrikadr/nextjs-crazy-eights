@@ -100,10 +100,34 @@ a {
   text-decoration: none;
 }
 
-
-.card:hover {
-  transform: translateY(-20px);
+.handContainer{
+display: flex;
+flex-wrap: wrap;
 }
+
+.card {
+  display: block;
+  transition: 0.5s;
+}
+.card:not(:first-child) {
+  margin-left: calc(10rem*-1);
+}
+.card:hover,
+.card:focus-within {
+  transform: translatey(-5rem);;
+}
+
+.card:hover~.card,
+.card:focus-within~.card {
+  transform: translatex(4rem);
+}
+
+
+
+/* .card:hover {
+  transform: translateY(-40px);
+
+} */
 
 
 @media (prefers-color-scheme: dark) {
