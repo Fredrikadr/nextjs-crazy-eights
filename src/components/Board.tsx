@@ -68,8 +68,6 @@ export default class Board extends Component<{}, BoardState> {
   }
 
 
-
-
   async shuffleDeck() {
     const { deckId, topCard } = this.state;
     await fetch(`/api/shuffle/${deckId}/${topCard.code}`)
@@ -217,6 +215,10 @@ export default class Board extends Component<{}, BoardState> {
   }
 
   async dealCards() {
+    const { playerOneHand, playerTwoHand, deckId } = this.state;
+    if (!deckId) {
+      return;
+    }
     const playerDraw = await this.drawCard(6);
     const computerDraw = await this.drawCard(6);
     this.setState({
@@ -225,6 +227,7 @@ export default class Board extends Component<{}, BoardState> {
     });
     this.initialDraw();
   }
+
 
   async initialDraw() {
     const card = await this.drawCard(1)
@@ -242,16 +245,15 @@ export default class Board extends Component<{}, BoardState> {
 
 
   async componentDidMount() {
+    await this.handlefetchDeckId();
+
     const { deckId } = this.state;
-    if (!deckId) {
-      await this.handlefetchDeckId();
+    if (deckId) {
+      await this.dealCards();
     }
 
-    await this.dealCards();
-
-
-    console.log(this.state.deckId, "finished fetching")
-    console.log("mounting")
+    console.log(this.state.deckId, "finished fetching");
+    console.log("mounting");
   }
 
 
