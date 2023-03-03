@@ -9,6 +9,7 @@ interface BoardState {
   currentPlayer: string;
   deckId: string;
   currentSuit: string;
+  message: string;
   topCard: TopCard,
   playerOneHand: any[];
   playerTwoHand: any[];
@@ -32,6 +33,7 @@ export default class Board extends Component<{}, BoardState> {
       currentPlayer: "playerOne",
       deckId: "",
       currentSuit: "",
+      message: "",
       topCard: {
         image: "",
         value: "",
@@ -42,29 +44,22 @@ export default class Board extends Component<{}, BoardState> {
       playerTwoHand: []
     }
 
-
-
   }
+
+  winCheck(currentPlayerHand: any[]) {
+    const { currentPlayer } = this.state;
+    if (currentPlayerHand.length === 0) {
+      this.setState({
+        message: `${currentPlayer} wins!`,
+        currentPlayer: "",
+      })
+    } else return;
+  }
+
   async handlefetchDeckId() {
     console.log("calling fetch deck id!!!!!!!!!!!!!!!!!!")
-    const { deckId } = this.state;
-
-    if (deckId) {
-      return deckId;
-    }
-
-    try {
-      this.setState({ isLoading: true });
       const deckId = await fetchDeckId();
-      console.log("fetching");
-      this.setState({
-        deckId,
-        isLoading: false
-      });
       return deckId;
-    } catch (error) {
-      console.log(error);
-    }
   }
 
 
@@ -75,9 +70,6 @@ export default class Board extends Component<{}, BoardState> {
     //TODO: Check if deck is shuffled
   }
 
-  shuffleDiscardPile() {
-
-  }
 
   computerTurn() {
     //check if any cards on hand is playable
@@ -117,13 +109,18 @@ export default class Board extends Component<{}, BoardState> {
 
       const newHand = oldHand.filter((cards) => {
         return cards.code != card.code;
+        
       })
 
+      
       this.setState({
         topCard: card,
-        [playerHand]: newHand
+        [playerHand]: newHand,
+        message: `${currentPlayer} played ${card.code}`
       } as Pick<BoardState, keyof BoardState>);
-
+      
+      
+      
       if (card.value != "8") {
         this.setState({
           currentSuit: card.suit
@@ -134,6 +131,7 @@ export default class Board extends Component<{}, BoardState> {
           changingSuit: true
         })
       }
+      this.winCheck(newHand)
       return;
     }
     console.log("card is not playable")
@@ -215,12 +213,13 @@ export default class Board extends Component<{}, BoardState> {
   }
 
   async dealCards() {
-    const { playerOneHand, playerTwoHand, deckId } = this.state;
+    const { deckId } = this.state;
     if (!deckId) {
       return;
     }
     const playerDraw = await this.drawCard(6);
     const computerDraw = await this.drawCard(6);
+    console.log("dealing cards")
     this.setState({
       playerOneHand: playerDraw,
       playerTwoHand: computerDraw
@@ -242,24 +241,37 @@ export default class Board extends Component<{}, BoardState> {
     return card
   }
 
+/*   async startGame() {
+    const deckId = await this.handlefetchDeckId();
+    this.setState({
+      deckId
+    })
+    await this.dealCards();
+  } */
 
 
   async componentDidMount() {
-    await this.handlefetchDeckId();
-
     const { deckId } = this.state;
-    if (deckId) {
-      await this.dealCards();
+    if (!deckId) {
+      this.setState({
+        isLoading: true
+      })
+      const response = await fetch("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
+      const data = await response.json();
+      const id = data.deck_id
+      this.setState({
+        deckId: id,
+        isLoading: false
+      })
     }
 
-    console.log(this.state.deckId, "finished fetching");
     console.log("mounting");
   }
 
 
   render() {
 
-    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard, changingSuit }: any = this.state;
+    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard, changingSuit, message }: any = this.state;
     console.log(this.state)
     console.log(this.state.currentSuit)
 
@@ -301,6 +313,7 @@ export default class Board extends Component<{}, BoardState> {
     return (
       <>
         <h1>Crazy Eights</h1>
+        <button onClick={() => this.dealCards()}>Deal</button>
         <h2>Current player: {currentPlayer === "playerOne" ? "Player one" : "Player two"}</h2>
         <div>
           <>
@@ -309,6 +322,7 @@ export default class Board extends Component<{}, BoardState> {
               <div className="handContainer">{playerTwoCards}</div>
             </div>
             <h2>Top Card</h2>
+            <p>{ message }</p>
             <div><img alt={topCard.code} src={topCard.image} ></img></div>
             <div>
               <h2>Your hand</h2>
@@ -320,6 +334,7 @@ export default class Board extends Component<{}, BoardState> {
         </div>
 
         <button onClick={() => !changingSuit ? this.handleDraw() : null}>Draw Card</button>
+       
         <h2>Deck ID: {this.state.deckId}</h2>
         {changingSuit &&
           <div className="suitChanger">
