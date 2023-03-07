@@ -166,7 +166,7 @@ export default class Board extends Component<{}, BoardState> {
           currentSuit: card.suit
         });
         this.switchTurn();
-      } else {
+      } else if(currentPlayer == "playerOne"){
         this.setState({
           changingSuit: true
         })
@@ -215,12 +215,15 @@ export default class Board extends Component<{}, BoardState> {
   }
 
   isCardPlayable(card: any) {
-    const currentSuit = this.state.currentSuit;
-    const currentValue = this.state.topCard.value;
+    const { currentSuit, topCard } = this.state;
+    const currentValue = topCard.value;
     console.log(this.state.topCard, currentSuit)
     const cardValues = ["2", "3", "4", "5", "6", "7", "9", "JACK", "QUEEN", "KING", "ACE"]
 
-    if (this.state.topCard.value === "8" && card.suit != currentSuit)
+    if (topCard.value == "8" && card.value == "8") {
+      return false;
+    }
+    if (topCard.value === "8" && card.suit != currentSuit)
       return false;
 
     if (card.value === "8") {
@@ -239,6 +242,7 @@ export default class Board extends Component<{}, BoardState> {
 
 
   async handleDraw() {
+    //TODO: fix double clicking
     const { currentPlayer, playerOneHand, playerTwoHand } = this.state;
     const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand"
     const oldHand = this.state[playerHand];
