@@ -1,6 +1,6 @@
+import { count } from "console";
 import { Component } from "react";
-import { fetchDeckId } from "../utils/utils.js"
-import { CSSTransition } from "react-transition-group";
+import { fetchDeckId, sleep } from "../utils/utils";
 
 
 interface BoardState {
@@ -53,7 +53,8 @@ export default class Board extends Component<{}, BoardState> {
         message: `${currentPlayer} wins!`,
         currentPlayer: "",
       })
-    } else return;
+      return true
+    } else return false;
   }
 
   async handlefetchDeckId() {
@@ -71,15 +72,35 @@ export default class Board extends Component<{}, BoardState> {
   }
 
 
-  computerTurn() {
+  async computerTurn() {
     //check if any cards on hand is playable
     //else check if any eights on hand -> change suit based on current hand
     //else draw card
     //repeat
     console.log("computer playing")
-    const playableCards = this.checkHandforPlayable(); 
-    this.playCard(playableCards[0])
-    
+    let playableCards = this.checkHandforPlayable();
+    while (playableCards.length === 0) {
+      await this.handleDraw();
+
+      playableCards = this.checkHandforPlayable();
+      await sleep(1000);
+    }
+
+    if (playableCards[0].value == "8" && playableCards.length === 1) {
+      this.playCard(playableCards[0]);
+      let maxSuit = this.checkHandForMost();
+
+      await sleep(1500);
+
+      this.setState({
+        currentSuit: maxSuit,
+        changingSuit: false
+      });
+
+    } else {
+      this.playCard(playableCards[0])
+    }
+
     this.switchTurn()
   }
 
@@ -92,7 +113,7 @@ export default class Board extends Component<{}, BoardState> {
     if (nextPlayer === "playerTwo") {
       setTimeout(() => {
         this.computerTurn();
-      }, 2500);
+      }, 2000);
       return;
     }
 
@@ -132,6 +153,9 @@ export default class Board extends Component<{}, BoardState> {
       } as Pick<BoardState, keyof BoardState>);
 
 
+      if (this.winCheck(newHand)) {
+        return;
+      }
 
       if (card.value != "8") {
         this.setState({
@@ -143,13 +167,38 @@ export default class Board extends Component<{}, BoardState> {
           changingSuit: true
         })
       }
-      this.winCheck(newHand)
       return;
     }
     console.log("card is not playable")
     return;
   }
 
+
+  checkHandForMost() {
+    const { currentPlayer, playerOneHand, playerTwoHand } = this.state;
+    let hand = currentPlayer === "playerOne" ? playerOneHand : playerTwoHand;
+    let suits: { [key: string]: number } = {
+      "HEARTS": 0,
+      "DIAMONDS": 0,
+      "SPADES": 0,
+      "CLUBS": 0
+    };
+
+    hand.forEach((card: { suit: string }) => {
+      suits[card.suit] += 1;
+    })
+
+
+    let maxCount = 0;
+    let maxSuit = "";
+    for (let suit in suits) {
+      if (suits[suit] > maxCount) {
+        maxCount = suits[suit];
+        maxSuit = suit;
+      }
+    }
+    return maxSuit;
+  }
 
   checkHandforPlayable() {
     //Checks if there are playable cards in current players hand
@@ -223,6 +272,7 @@ export default class Board extends Component<{}, BoardState> {
   }
 
   async dealCards() {
+    //TODO: implement drawing all cards and then dealing them
     const { deckId } = this.state;
     if (!deckId) {
       return;
@@ -329,21 +379,21 @@ export default class Board extends Component<{}, BoardState> {
         <div>
           <>
             <div className='gameBoard'>
-            <div>
-              <div className="handContainer">{playerTwoCards}</div>
-            </div>
-            <div className="middleBoard">
-              
-              <div ><img
-                className="topCard"
-                alt={topCard.code}
-                src={topCard.image}
-              ></img></div>
-            </div>
+              <div>
+                <div className="handContainer">{playerTwoCards}</div>
+              </div>
+              <div className="middleBoard">
 
-            <div>
-              <div className="handContainer">{playerOneCards}</div>
-            </div>
+                <div ><img
+                  className="topCard"
+                  alt={topCard.code}
+                  src={topCard.image}
+                ></img></div>
+              </div>
+
+              <div>
+                <div className="handContainer">{playerOneCards}</div>
+              </div>
             </div>
           </>
 
@@ -352,7 +402,7 @@ export default class Board extends Component<{}, BoardState> {
         <button onClick={() => !changingSuit ? this.handleDraw() : null}>Draw Card</button>
 
         <h2>Deck ID: {this.state.deckId}</h2>
-        {changingSuit &&
+        {changingSuit && currentPlayer === "playerOne" &&
           <div className="suitChanger">
             <button onClick={() => this.changeSuit("SPADES")}>Spades</button>
             <button onClick={() => this.changeSuit("HEARTS")}>Hearts</button>
