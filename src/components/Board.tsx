@@ -1,6 +1,10 @@
 import { count } from "console";
 import { Component } from "react";
 import { fetchDeckId, sleep } from "../utils/utils";
+import Sidepanel from "./Sidepanel";
+import SuitChanger from "./SuitChanger";
+import cardback from "../assets/cardback.png";
+import Image from "next/image";
 
 
 interface BoardState {
@@ -331,7 +335,7 @@ export default class Board extends Component<{}, BoardState> {
 
   render() {
 
-    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard, changingSuit, message }: any = this.state;
+    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard, changingSuit, message , currentSuit}: any = this.state;
     console.log(this.state)
     console.log(this.state.currentSuit)
 
@@ -341,6 +345,14 @@ export default class Board extends Component<{}, BoardState> {
       )
     }
 
+
+    const playerTwoCardsHidden = playerTwoHand.map((card: any) => {
+      return (
+        <Image className="card" src={cardback} alt="card back"/>
+      )
+    })
+
+    console.log(cardback, "cardback")
 
     const playerTwoCards = playerTwoHand
       .map((card: any, i: number) => {
@@ -372,43 +384,45 @@ export default class Board extends Component<{}, BoardState> {
 
     return (
       <>
+        
         <h1>Crazy Eights</h1>
         <button onClick={() => this.dealCards()}>Deal</button>
         <h2>Current player: {currentPlayer === "playerOne" ? "Player one" : "Player two"}</h2>
-        <p>{message}</p>
         <div>
+            <div className="grid-container">
           <>
-            <div className='gameBoard'>
-              <div>
-                <div className="handContainer">{playerTwoCards}</div>
-              </div>
-              <div className="middleBoard">
+              <div className='gameBoard'>
+                <div>
+                  <div className="handContainer">{playerTwoCardsHidden}</div>
+                </div>
+                <div className="middleBoard">
 
-                <div ><img
-                  className="topCard"
-                  alt={topCard.code}
-                  src={topCard.image}
-                ></img></div>
-              </div>
+                  <div ><img
+                    className="topCard"
+                    alt={topCard.code}
+                    src={topCard.image}
+                  ></img></div>
+                </div>
 
-              <div>
-                <div className="handContainer">{playerOneCards}</div>
+                <div>
+                  <div className="handContainer">{playerOneCards}</div>
+                </div>
               </div>
-            </div>
-          </>
-
+            </>
+            <Sidepanel
+              message={message}
+              currentSuit={currentSuit}
+              currentPlayer={currentPlayer}
+              changingSuit={changingSuit}
+              changeSuit={this.changeSuit.bind(this)}
+              handleDraw={this.handleDraw.bind(this)} />
+          </div>
+          
         </div>
 
-        <button onClick={() => !changingSuit ? this.handleDraw() : null}>Draw Card</button>
+       
 
         <h2>Deck ID: {this.state.deckId}</h2>
-        {changingSuit && currentPlayer === "playerOne" &&
-          <div className="suitChanger">
-            <button onClick={() => this.changeSuit("SPADES")}>Spades</button>
-            <button onClick={() => this.changeSuit("HEARTS")}>Hearts</button>
-            <button onClick={() => this.changeSuit("DIAMONDS")}>Diamonds</button>
-            <button onClick={() => this.changeSuit("CLUBS")}>Clubs</button>
-          </div>}
 
       </>
     )

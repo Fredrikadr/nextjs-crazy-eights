@@ -137,14 +137,32 @@ button {
 }
 
 .gameBoard {
-  max-width: 70%;
   height: 100vh;
-  margin: 0 auto;
+
   border: 1px solid white;
   padding: 30px;
   overflow: hidden;
+  grid-area: middle;
+
 }
 
+.grid-container{
+  width: 100%;
+  display: grid;
+  grid-template-areas: 
+  "middle right"
+  ;
+  grid-template-columns: 3fr 1fr;
+
+}
+
+.sidepanel{
+  border: 1px solid white;
+  grid-area: right;
+  padding: 30px;
+  margin: 0;
+  border-left: none;
+}
 
 
 /* .card:hover {
