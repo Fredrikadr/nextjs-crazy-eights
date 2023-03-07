@@ -346,9 +346,9 @@ export default class Board extends Component<{}, BoardState> {
     }
 
 
-    const playerTwoCardsHidden = playerTwoHand.map((card: any) => {
+    const playerTwoCardsHidden = playerTwoHand.map((card: any, i: number) => {
       return (
-        <Image className="card" src={cardback} alt="card back"/>
+        <Image key={i} className="card" src={cardback} alt="card back"/>
       )
     })
 
