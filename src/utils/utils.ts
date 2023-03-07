@@ -5,4 +5,10 @@ async function fetchDeckId() {
   return deck.deck_id;
 }
 
-export { fetchDeckId };
+
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export { fetchDeckId, sleep };
