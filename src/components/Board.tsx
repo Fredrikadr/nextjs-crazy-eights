@@ -253,20 +253,28 @@ export default class Board extends Component<{}, BoardState> {
 
   async handleDraw() {
     //TODO: fix double clicking
-    const { currentPlayer, playerOneHand, playerTwoHand } = this.state;
+    const { currentPlayer, playerOneHand, playerTwoHand, drawCount} = this.state;
     const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand"
     const oldHand = this.state[playerHand];
+    let oldCount = this.state.drawCount;
 
+    
     if (this.checkHandforPlayable().length === 0) {
       console.log("no playable cards. drawing 1")
       let newCard = await this.drawCard(1);
       let newHand = oldHand.concat(newCard);
-
+      
+      
       this.setState({
         [playerHand]: newHand,
+        drawCount: oldCount+1
         
       } as unknown as Pick<BoardState, keyof BoardState>);
-
+      
+      if (currentPlayer === "playerOne" && this.checkHandforPlayable().length === 0 && this.state.drawCount === 2) {
+        this.switchTurn();
+        return;
+      }
 
     } else {
       console.log("you have playable cards. no cards drawn")
