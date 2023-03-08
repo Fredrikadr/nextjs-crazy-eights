@@ -4,11 +4,11 @@ export default function Sidepanel(props: any) {
   return (
     <div className="sidepanel">
       <div>
-        {props.currentPlayer === "playerOne" ? <h3 style={{color: "red"}}>Your Turn</h3> : <h3>Computer is playing...</h3>}
+        {props.currentPlayer === "playerOne" ? <h3 style={{ color: "red" }}>Your Turn</h3> : <h3>Computer is playing...</h3>}
       </div>
       <div>
-      <p>Last move: </p>
-        {props.message || "None"  }
+        <p>Last move: </p>
+        {props.message || "None"}
       </div>
       <div>
         <p>Current suit:</p>
@@ -16,6 +16,7 @@ export default function Sidepanel(props: any) {
       </div>
       {props.changingSuit && props.currentPlayer === "playerOne" && <SuitChanger changeSuit={props.changeSuit} />}
       <button onClick={() => !props.changingSuit ? props.handleDraw() : null}>Draw Card</button>
+      <p>Draw count: {props.drawCount}</p>
     </div>
   );
 }

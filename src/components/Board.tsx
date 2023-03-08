@@ -14,6 +14,7 @@ interface BoardState {
   deckId: string;
   currentSuit: string;
   message: string;
+  drawCount: number;
   topCard: TopCard,
   playerOneHand: any[];
   playerTwoHand: any[];
@@ -38,6 +39,7 @@ export default class Board extends Component<{}, BoardState> {
       deckId: "",
       currentSuit: "",
       message: "",
+      drawCount: 0,
       topCard: {
         image: "",
         value: "",
@@ -83,11 +85,18 @@ export default class Board extends Component<{}, BoardState> {
     //repeat
     console.log("computer playing")
     let playableCards = this.checkHandforPlayable();
-    while (playableCards.length === 0) {
+    let drawCount = 0;
+    while (playableCards.length === 0 && drawCount < 3) {
       await this.handleDraw();
-
+      console.log(drawCount)
+      drawCount++
       playableCards = this.checkHandforPlayable();
       await sleep(1000);
+    }
+
+    if (drawCount === 3 && playableCards.length === 0) {
+      this.switchTurn();
+      return;
     }
 
     if (playableCards[0].value == "8" && playableCards.length === 1) {
@@ -112,7 +121,8 @@ export default class Board extends Component<{}, BoardState> {
     const { currentPlayer } = this.state;
     const nextPlayer = currentPlayer === "playerOne" ? "playerTwo" : "playerOne";
     this.setState({
-      currentPlayer: nextPlayer
+      currentPlayer: nextPlayer,
+      drawCount: 0
     })
     if (nextPlayer === "playerTwo") {
       setTimeout(() => {
@@ -253,8 +263,10 @@ export default class Board extends Component<{}, BoardState> {
       let newHand = oldHand.concat(newCard);
 
       this.setState({
-        [playerHand]: newHand
+        [playerHand]: newHand,
+        
       } as unknown as Pick<BoardState, keyof BoardState>);
+
 
     } else {
       console.log("you have playable cards. no cards drawn")
@@ -339,7 +351,7 @@ export default class Board extends Component<{}, BoardState> {
 
   render() {
 
-    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard, changingSuit, message , currentSuit}: any = this.state;
+    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard, changingSuit, message , currentSuit, drawCount}: any = this.state;
     console.log(this.state)
     console.log(this.state.currentSuit)
 
@@ -419,7 +431,9 @@ export default class Board extends Component<{}, BoardState> {
               currentPlayer={currentPlayer}
               changingSuit={changingSuit}
               changeSuit={this.changeSuit.bind(this)}
-              handleDraw={this.handleDraw.bind(this)} />
+              handleDraw={this.handleDraw.bind(this)}
+              drawCount={drawCount}
+            />
           </div>
           
         </div>
