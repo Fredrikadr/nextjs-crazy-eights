@@ -422,7 +422,7 @@ export default class Board extends Component<{}, BoardState> {
           <>
               <div className='gameBoard'>
                 <div>
-                  <div className="handContainer">{playerTwoCards}</div>
+                  <div className="handContainer">{playerTwoCardsHidden}</div>
                 </div>
                 <div className="middleBoard">
 
