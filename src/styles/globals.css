@@ -113,6 +113,7 @@ a {
   transition: 0.5s;
   width: 180px;
   height: 250px;
+  z-index: 1000;
 }
 
 .topCard {
@@ -145,7 +146,7 @@ button {
   overflow: hidden;
   grid-area: board;
   background-color: #086363;
-  background-image: url("../assets/fabric.png");
+  background-image: url("https://www.transparenttextures.com/patterns/felt.png");
 
 }
 
@@ -161,11 +162,15 @@ button {
 }
 
 .sidepanel{
-  border: 1px solid white;
   grid-area: top;
   display: flex;
   padding: 30px;
+  background-color: #794e3b;
+  background-image: url("../assets/wood.png");
   justify-content: space-between;
+  box-shadow: 5px 5px 50px black;
+
+  font-weight: bold;
 }
 
 
