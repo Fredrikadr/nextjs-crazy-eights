@@ -5,6 +5,7 @@ import Sidepanel from "./Sidepanel";
 import SuitChanger from "./SuitChanger";
 import cardback from "../assets/cardback.png";
 import Image from "next/image";
+import DrawPile from "./DrawPile";
 
 
 interface BoardState {
@@ -356,6 +357,7 @@ export default class Board extends Component<{}, BoardState> {
         deckId: id,
         isLoading: false
       })
+      await this.dealCards();
     }
 
     console.log("mounting");
@@ -381,7 +383,6 @@ export default class Board extends Component<{}, BoardState> {
       )
     })
 
-    console.log(cardback, "cardback")
 
     const playerTwoCards = playerTwoHand
       .map((card: any, i: number) => {
@@ -413,10 +414,6 @@ export default class Board extends Component<{}, BoardState> {
 
     return (
       <>
-        
-        <h1>Crazy Eights</h1>
-        <button onClick={() => this.dealCards()}>Deal</button>
-        <h2>Current player: {currentPlayer === "playerOne" ? "Player one" : "Player two"}</h2>
         <div>
             <div className="grid-container">
           <>
@@ -431,30 +428,24 @@ export default class Board extends Component<{}, BoardState> {
                     alt={topCard.code}
                     src={topCard.image}
                   ></img></div>
+                  <DrawPile handleDraw={this.handleDraw.bind(this)} changingSuit={changingSuit} />
                 </div>
-
                 <div>
                   <div className="handContainer">{playerOneCards}</div>
                 </div>
               </div>
             </>
+            
             <Sidepanel
               message={message}
               currentSuit={currentSuit}
               currentPlayer={currentPlayer}
               changingSuit={changingSuit}
               changeSuit={this.changeSuit.bind(this)}
-              handleDraw={this.handleDraw.bind(this)}
               drawCount={drawCount}
             />
           </div>
-          
         </div>
-
-       
-
-        <h2>Deck ID: {this.state.deckId}</h2>
-
       </>
     )
   }
