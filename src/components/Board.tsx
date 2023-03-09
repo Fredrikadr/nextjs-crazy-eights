@@ -346,19 +346,22 @@ export default class Board extends Component<{}, BoardState> {
 
   async componentDidMount() {
     const { deckId } = this.state;
-    if (!deckId) {
+    let id = "";
+    if (deckId == "") {
       this.setState({
         isLoading: true
       })
       const response = await fetch("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
       const data = await response.json();
-      const id = data.deck_id
-      this.setState({
+      id = data.deck_id
+       this.setState({
         deckId: id,
         isLoading: false
       })
       await this.dealCards();
     }
+     
+    
 
     console.log("mounting");
   }
