@@ -34,7 +34,7 @@ export default class Board extends Component<{}, BoardState> {
   constructor(props: any) {
     super(props)
     this.state = {
-      isLoading: false,
+      isLoading: true,
       changingSuit: false,
       currentPlayer: "playerOne",
       deckId: "",
@@ -318,7 +318,7 @@ export default class Board extends Component<{}, BoardState> {
       playerOneHand: playerDraw,
       playerTwoHand: computerDraw
     });
-    this.initialDraw();
+    await this.initialDraw();
   }
 
 
@@ -347,7 +347,7 @@ export default class Board extends Component<{}, BoardState> {
   async componentDidMount() {
     const { deckId } = this.state;
     let id = "";
-    if (deckId == "") {
+    if (!deckId) {
       this.setState({
         isLoading: true
       })
@@ -357,10 +357,9 @@ export default class Board extends Component<{}, BoardState> {
        this.setState({
         deckId: id,
         isLoading: false
-      })
+       })
       await this.dealCards();
-    }
-     
+      }
     
 
     console.log("mounting");
