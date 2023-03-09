@@ -90,8 +90,13 @@ export default class Board extends Component<{}, BoardState> {
       await this.handleDraw();
       console.log(drawCount)
       drawCount++
-      playableCards = this.checkHandforPlayable();
       await sleep(1000);
+      playableCards = this.checkHandforPlayable();
+    }
+
+    if (playableCards.length > 0 && playableCards[0].value != "8") {
+      this.playCard(playableCards[0])
+      return;
     }
 
     if (drawCount === 3 && playableCards.length === 0) {
@@ -253,7 +258,7 @@ export default class Board extends Component<{}, BoardState> {
 
   async handleDraw() {
     //TODO: fix double clicking
-    const { currentPlayer, playerOneHand, playerTwoHand, drawCount} = this.state;
+    const { currentPlayer } = this.state;
     const playerHand = currentPlayer === "playerOne" ? "playerOneHand" : "playerTwoHand"
     const oldHand = this.state[playerHand];
     let oldCount = this.state.drawCount;
@@ -269,11 +274,11 @@ export default class Board extends Component<{}, BoardState> {
         [playerHand]: newHand,
         drawCount: oldCount+1
         
-      } as unknown as Pick<BoardState, keyof BoardState>);
+      } as unknown as Pick<BoardState, keyof BoardState>)
       
-      if (currentPlayer === "playerOne" && this.checkHandforPlayable().length === 0 && this.state.drawCount === 2) {
-        this.switchTurn();
-        return;
+      if (currentPlayer === "playerOne" && this.isCardPlayable(newCard[0]) == false && this.state.drawCount === 2) {
+          this.switchTurn();
+          return;
       }
 
     } else {
@@ -417,7 +422,7 @@ export default class Board extends Component<{}, BoardState> {
           <>
               <div className='gameBoard'>
                 <div>
-                  <div className="handContainer">{playerTwoCardsHidden}</div>
+                  <div className="handContainer">{playerTwoCards}</div>
                 </div>
                 <div className="middleBoard">
 
