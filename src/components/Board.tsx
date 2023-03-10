@@ -28,16 +28,20 @@ interface TopCard {
   code: string,
 }
 
+interface BoardProps {
+  deckId: string;
+}
 
 
-export default class Board extends Component<{}, BoardState> {
+
+export default class Board extends Component<BoardProps, BoardState> {
   constructor(props: any) {
     super(props)
     this.state = {
-      isLoading: true,
+      isLoading: false,
       changingSuit: false,
       currentPlayer: "playerOne",
-      deckId: "",
+      deckId: props.deckId,
       currentSuit: "",
       message: "",
       drawCount: 0,
@@ -345,22 +349,8 @@ export default class Board extends Component<{}, BoardState> {
 
 
   async componentDidMount() {
-    const { deckId } = this.state;
-    let id = "";
-    if (!deckId) {
-      this.setState({
-        isLoading: true
-      })
-      const response = await fetch("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
-      const data = await response.json();
-      id = data.deck_id
-       this.setState({
-        deckId: id,
-        isLoading: false
-       })
-      await this.dealCards();
-      }
-    
+      
+    await this.dealCards();
 
     console.log("mounting");
   }
