@@ -11,7 +11,7 @@ export async function getServerSideProps() {
 }
 }
 
-export default function Home({deckid}) {
+export default function Home({deckid}: {deckid: string}) {
   return (
     <>
       <Board deckId={ deckid } />
