@@ -6,6 +6,7 @@ import SuitChanger from "./SuitChanger";
 import cardback from "../assets/cardback.png";
 import Image from "next/image";
 import DrawPile from "./DrawPile";
+import GameInfo from "./GameInfo";
 
 
 interface BoardState {
@@ -414,7 +415,12 @@ export default class Board extends Component<BoardProps, BoardState> {
                   <div className="handContainer">{playerTwoCardsHidden}</div>
                 </div>
                 <div className="middleBoard">
-
+                  <GameInfo
+                    currentPlayer={currentPlayer}
+                    currentSuit={currentSuit}
+                    message={message}
+                    drawCount={drawCount}/>
+                  
                   <div ><img
                     className="topCard"
                     alt={topCard.code}
@@ -429,12 +435,10 @@ export default class Board extends Component<BoardProps, BoardState> {
             </>
             
             <Sidepanel
-              message={message}
-              currentSuit={currentSuit}
               currentPlayer={currentPlayer}
               changingSuit={changingSuit}
               changeSuit={this.changeSuit.bind(this)}
-              drawCount={drawCount}
+
             />
           </div>
         </div>
