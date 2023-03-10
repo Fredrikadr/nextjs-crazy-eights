@@ -94,16 +94,15 @@ button {
   width: 100%;
   display: grid;
   grid-template-areas: 
-  "top"
+  "header"
   "board"
-  "footer"
   ;
-  grid-template-rows: 5vh 90vh auto;
+  grid-template-rows: 5vh 95;
 
 }
 
 .sidepanel{
-  grid-area: top;
+  grid-area: header;
   display: flex;
   padding: 30px;
   background-color: #794e3b;
@@ -114,13 +113,18 @@ button {
   font-weight: bold;
 }
 
-footer {
-  grid-area: footer;
+.credits {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  border: 1px solid white;
+  padding: 20px;
+  border-radius: 1rem;
 }
 
-footer > * {
-  margin: 0;
-}
 
 
 /* .card:hover {

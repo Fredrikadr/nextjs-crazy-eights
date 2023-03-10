@@ -1,5 +1,5 @@
 import Board from '@/components/Board'
-import Footer from '@/components/Footer';
+import Credits from '@/components/Credits';
 
 export async function getServerSideProps() {
   const response = await fetch("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
@@ -16,7 +16,7 @@ export default function Home({deckid}: {deckid: string}) {
   return (
     <>
       <Board deckId={deckid} />
-      <Footer />
+      <Credits />
     </>
   )
 }
