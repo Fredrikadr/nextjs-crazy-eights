@@ -13,6 +13,7 @@ a {
 .handContainer {
   display: flex;
   justify-content: center;
+  min-height: 33%;
 
 }
 
@@ -21,6 +22,7 @@ a {
   margin: 20px auto;
   max-width: 50%;
   justify-content: space-evenly;
+  min-height: 33%;
 
 }
 
@@ -91,13 +93,14 @@ button {
 }
 
 .grid-container{
+  height: 100vh;
   width: 100%;
   display: grid;
   grid-template-areas: 
   "header"
   "board"
   ;
-  grid-template-rows: 5vh 95;
+  grid-template-rows: 5vh 95vh;
 
 }
 
