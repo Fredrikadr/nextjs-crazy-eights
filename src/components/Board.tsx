@@ -1,12 +1,11 @@
 import { count } from "console";
 import { Component } from "react";
 import { fetchDeckId, sleep } from "../utils/utils";
-import Sidepanel from "./Sidepanel";
-import SuitChanger from "./SuitChanger";
 import cardback from "../assets/cardback.png";
 import Image from "next/image";
 import DrawPile from "./DrawPile";
 import GameInfo from "./GameInfo";
+import TopCard from "./TopCard";
 
 
 interface BoardState {
@@ -187,7 +186,7 @@ export default class Board extends Component<BoardProps, BoardState> {
           currentSuit: card.suit
         });
         this.switchTurn();
-      } else if(currentPlayer == "playerOne"){
+      } else if (currentPlayer == "playerOne") {
         this.setState({
           changingSuit: true
         })
@@ -269,22 +268,22 @@ export default class Board extends Component<BoardProps, BoardState> {
     const oldHand = this.state[playerHand];
     let oldCount = this.state.drawCount;
 
-    
+
     if (this.checkHandforPlayable().length === 0) {
       console.log("no playable cards. drawing 1")
       let newCard = await this.drawCard(1);
       let newHand = oldHand.concat(newCard);
-      
-      
+
+
       this.setState({
         [playerHand]: newHand,
-        drawCount: oldCount+1
-        
+        drawCount: oldCount + 1
+
       } as unknown as Pick<BoardState, keyof BoardState>)
-      
+
       if (currentPlayer === "playerOne" && this.isCardPlayable(newCard[0]) == false && this.state.drawCount === 2) {
-          this.switchTurn();
-          return;
+        this.switchTurn();
+        return;
       }
 
     } else {
@@ -350,7 +349,7 @@ export default class Board extends Component<BoardProps, BoardState> {
 
 
   async componentDidMount() {
-      
+
     await this.dealCards();
 
     console.log("mounting");
@@ -359,7 +358,7 @@ export default class Board extends Component<BoardProps, BoardState> {
 
   render() {
 
-    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard, changingSuit, message , currentSuit, drawCount}: any = this.state;
+    let { currentPlayer, isLoading, playerOneHand, playerTwoHand, topCard, changingSuit, message, currentSuit, drawCount }: any = this.state;
     console.log(this.state)
     console.log(this.state.currentSuit)
 
@@ -372,7 +371,7 @@ export default class Board extends Component<BoardProps, BoardState> {
 
     const playerTwoCardsHidden = playerTwoHand.map((card: any, i: number) => {
       return (
-        <Image key={i} className="card" src={cardback} alt="card back"/>
+        <Image key={i} className="card" src={cardback} alt="card back" />
       )
     })
 
@@ -408,8 +407,8 @@ export default class Board extends Component<BoardProps, BoardState> {
     return (
       <>
         <div>
-            <div className="grid-container">
-          <>
+          <div className="grid-container">
+            <>
               <div className='gameBoard'>
                 <div>
                   <div className="handContainer">{playerTwoCardsHidden}</div>
@@ -419,27 +418,30 @@ export default class Board extends Component<BoardProps, BoardState> {
                     currentPlayer={currentPlayer}
                     currentSuit={currentSuit}
                     message={message}
-                    drawCount={drawCount}/>
-                  
-                  <div ><img
-                    className="topCard"
+                    drawCount={drawCount} />
+                  <TopCard
+                    image={topCard.image}
+                    code={topCard.code}
+                    changingSuit={changingSuit}
+                    currentPlayer={currentPlayer}
+                    changeSuit={this.changeSuit.bind(this)} />
+                  {/*   <div className="topCard"><img
+                    
                     alt={topCard.code}
                     src={topCard.image}
-                  ></img></div>
-                  <DrawPile handleDraw={this.handleDraw.bind(this)} changingSuit={changingSuit} />
+                  ></img>
+                  
+                  </div> */}
+                  <DrawPile handleDraw={this.handleDraw.bind(this)}
+                    changingSuit={changingSuit}
+                    currentPlayer={currentPlayer}
+                    changeSuit={this.changeSuit.bind(this)} />
                 </div>
                 <div>
                   <div className="handContainer">{playerOneCards}</div>
                 </div>
               </div>
             </>
-            
-            <Sidepanel
-              currentPlayer={currentPlayer}
-              changingSuit={changingSuit}
-              changeSuit={this.changeSuit.bind(this)}
-
-            />
           </div>
         </div>
       </>

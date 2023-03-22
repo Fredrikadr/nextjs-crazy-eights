@@ -2,8 +2,13 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  color: white;
 }
 
+body {
+  background-color: #086363;
+  background-image: url("https://www.transparenttextures.com/patterns/felt.png");
+}
 
 a {
   color: inherit;
@@ -44,9 +49,14 @@ a {
 }
 
 .topCard {
+  position: relative;
+  margin: 1rem 0;
+}
+
+.topCard img {
+  object-fit: contain;
   width: 180px;
   height: 250px;
-  margin: 1rem 0;
 }
 
 
@@ -66,18 +76,36 @@ a {
 }
 
 button {
-  padding: 10px 20px;
+  padding: 30px;
+  background-size: contain;
+
+
+}
+
+button.spades {
+  background-image: url("../assets/spades.png");
+}
+
+button.hearts {
+  background-image: url("../assets/hearts.png");
+}
+
+button.diamonds {
+  background-image: url("../assets/diamonds.png");
+}
+
+button.clubs {
+  background-image: url("../assets/clubs.png");
 }
 
 .gameBoard {
-  padding: 30px;
+  margin-top: -60px;
   grid-area: board;
-  background-color: #086363;
-  background-image: url("https://www.transparenttextures.com/patterns/felt.png");
+
 
 }
 
-.game-info{
+.game-info {
   display: flex;
   flex-direction: column;
   width: 200px;
@@ -92,52 +120,36 @@ button {
   height: auto;
 }
 
-.grid-container{
-  height: 100vh;
+.grid-container {
   width: 100%;
   display: grid;
-  grid-template-areas: 
-  "header"
-  "board"
+  grid-template-areas:
+    "header"
+    "board"
   ;
   grid-template-rows: 5vh 95vh;
 
+
 }
 
-.sidepanel{
+header {
   grid-area: header;
-  display: flex;
   padding: 30px;
   background-color: #794e3b;
   background-image: url("../assets/wood.png");
-  justify-content: space-between;
   box-shadow: 5px 5px 50px black;
-
-  font-weight: bold;
 }
 
-.credits {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.suit-changer {
   position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  border: 1px solid white;
-  padding: 20px;
-  border-radius: 1rem;
+  top: 0;
+  display: flex;
+  flex-wrap: wrap;
+  width: 128px;
+
 }
-
-
 
 /* .card:hover {
   transform: translateY(-40px);
 
 } */
-
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
